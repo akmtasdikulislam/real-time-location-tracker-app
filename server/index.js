@@ -34,10 +34,31 @@ io.on("connection", (socket) => {
 
   socket.emit("connected", "Socket Connected Successfully");
 
+  socket.on("send-location", (data) => {
+    console.log(data);
+
+    // If the user is new, then s/he will show other users on map first then show itself.
+    if (
+      Object.keys(locationData).find((item) => item === data.userID) ===
+      undefined
+    ) {
+      io.emit("others-location", locationData);
+    }
+
+    locationData[socket.id] = data;
+
+    // Broadcast the received location to all
+    io.emit("receive-location", locationData[socket.id]);
+  });
+
   // socket disconnect
   socket.on("disconnect", () => {
     console.log(`User Disconnected: ${socket.id}`);
 
+    // When an user is disconnected, then delete its location information
+    delete locationData[socket.id];
+    // Also, tell other connected users to remove their location marker from the map.
+    io.emit("remove-marker", socket.id);
   });
 });
 
