@@ -25,6 +25,22 @@ const io = new Server(expressServer, {
 const ipAddress = Object.values(os.networkInterfaces())[0][1].address;
 const port = 5000;
 
+// Storing each user's location data
+let locationData = {};
+
+// socket connection
+io.on("connection", (socket) => {
+  console.log(`New User Connected ${socket.id}`);
+
+  socket.emit("connected", "Socket Connected Successfully");
+
+  // socket disconnect
+  socket.on("disconnect", () => {
+    console.log(`User Disconnected: ${socket.id}`);
+
+  });
+});
+
 app.get("/", (req, res) => {
   res.send(`Server is running at https://${ipAddress}:${port}`);
 });
