@@ -37,6 +37,10 @@ const App = () => {
     );
 
     setLocationWatchID(watchID);
+
+    if (socketRef.current.disconnected) {
+      socketInitialization();
+    }
   };
 
   const handleDisableLocation = () => {
@@ -53,41 +57,7 @@ const App = () => {
     console.log(markerRef.current);
   };
 
-  // useEffects
-  useEffect(() => {
-    Radar.initialize("prj_test_pk_38e6576bdd61ed57be05f3c0796eaa017b9864a5");
-  }, []);
-
-  useEffect(() => {
-    if (isLocationEnabled) {
-      mapRef.current = Radar.ui.map({
-        container: "map",
-        style: "radar-default-v1",
-        center: [locationInfo.longitude, locationInfo.latitude],
-        zoom: 16,
-      });
-    }
-    return () => {
-      // map.current.remove();
-    };
-  }, [isLocationEnabled]);
-
-  useEffect(() => {
-    if (isLocationEnabled) {
-      socketRef.current.emit("send-location", {
-        userID: socketRef.current.id,
-        latitude: locationInfo.latitude,
-        longitude: locationInfo.longitude,
-      });
-    }
-
-    return () => {
-      // markerRef.current.remove();
-    };
-  }, [locationInfo]);
-
-  // Initial Socket Connection
-  useEffect(() => {
+  const socketInitialization = () => {
     socketRef.current = io("https://192.168.0.215:5000");
 
     socketRef.current.on("connected", (data) => {
@@ -157,7 +127,44 @@ const App = () => {
       console.log("Socket Disconnected");
       delete markerRef[socketRef.current.id];
     });
+  };
 
+  // useEffects
+  useEffect(() => {
+    Radar.initialize("prj_test_pk_38e6576bdd61ed57be05f3c0796eaa017b9864a5");
+  }, []);
+
+  useEffect(() => {
+    if (isLocationEnabled) {
+      mapRef.current = Radar.ui.map({
+        container: "map",
+        style: "radar-default-v1",
+        center: [locationInfo.longitude, locationInfo.latitude],
+        zoom: 16,
+      });
+    }
+    return () => {
+      // map.current.remove();
+    };
+  }, [isLocationEnabled]);
+
+  useEffect(() => {
+    if (isLocationEnabled) {
+      socketRef.current.emit("send-location", {
+        userID: socketRef.current.id,
+        latitude: locationInfo.latitude,
+        longitude: locationInfo.longitude,
+      });
+    }
+
+    return () => {
+      // markerRef.current.remove();
+    };
+  }, [locationInfo]);
+
+  // Initial Socket Connection
+  useEffect(() => {
+    socketInitialization();
     return () => {
       socketRef.current.off("connected");
       socketRef.current.off("others-location");
