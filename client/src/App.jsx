@@ -142,6 +142,20 @@ const App = () => {
         center: [locationInfo.longitude, locationInfo.latitude],
         zoom: 16,
       });
+
+      if (!markerRef.current["bupMarker"]) {
+        Radar.ui
+          .marker({
+            url: "https://upload.wikimedia.org/wikipedia/en/9/95/Bangladesh_University_of_Professionals_%28BUP%29_Logo.svg",
+            width: "48px",
+            height: "48px",
+            popup: {
+              text: "Bangladesh University of Professionals",
+            },
+          })
+          .setLngLat([90.35763600418083, 23.83990460043535])
+          .addTo(mapRef.current);
+      }
     }
     return () => {
       // map.current.remove();
